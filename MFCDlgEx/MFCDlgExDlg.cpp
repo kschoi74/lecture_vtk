@@ -8,6 +8,10 @@
 #include "MFCDlgExDlg.h"
 #include "afxdialogex.h"
 
+//#include <vtkCamera.h>
+#include <vtkLight.h>
+#include <vtkSTLReader.h>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -66,6 +70,7 @@ BEGIN_MESSAGE_MAP(CMFCDlgExDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_CONE, &CMFCDlgExDlg::OnBnClickedButtonCone)
+	ON_BN_CLICKED(IDC_BUTTON_STL_READER, &CMFCDlgExDlg::OnBnClickedButtonStlReader)
 END_MESSAGE_MAP()
 
 
@@ -214,4 +219,45 @@ void CMFCDlgExDlg::ResizeVtkWindow()
 		pWnd->GetClientRect(rc);
 		m_vtkWindow->SetSize(rc.Width(), rc.Height());
 	}
+}
+
+
+void CMFCDlgExDlg::OnBnClickedButtonStlReader()
+{
+	vtkSmartPointer<vtkSTLReader> pSTLReader =
+		vtkSmartPointer<vtkSTLReader>::New();
+	pSTLReader->SetFileName("DragonEggStandardTop.stl");
+	pSTLReader->Update();
+
+	vtkSmartPointer<vtkPolyData> pPolyData =
+		pSTLReader->GetOutput();
+
+	vtkSmartPointer<vtkPolyDataMapper> mapper =
+		vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputData(pPolyData);
+	vtkSmartPointer<vtkActor> actor =
+		vtkSmartPointer<vtkActor>::New();
+	actor->SetMapper(mapper);
+
+	vtkSmartPointer<vtkRenderer> renderer =
+		vtkSmartPointer<vtkRenderer>::New();
+	renderer->AddActor(actor);
+	renderer->SetBackground(.1, .2, .3);
+	renderer->ResetCamera();
+
+	vtkSmartPointer<vtkLight> newLight = vtkSmartPointer<vtkLight>::New();
+	newLight->SetColor(1, 1, 0);
+	newLight->SetFocalPoint(0, 0, 0);
+	newLight->SetPosition(-3, 0, 5);
+
+	vtkSmartPointer<vtkLight> newLight2 = vtkSmartPointer<vtkLight>::New();
+	newLight2->SetColor(0, 1, 1);
+	newLight2->SetFocalPoint(0, 0, 0);
+	newLight2->SetPosition(3, 0, 5);
+
+	renderer->AddLight(newLight);
+	renderer->AddLight(newLight2);
+
+	m_vtkWindow->AddRenderer(renderer);
+	m_vtkWindow->Render();
 }

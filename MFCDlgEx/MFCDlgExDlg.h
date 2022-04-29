@@ -37,4 +37,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButtonCone();
+	afx_msg void OnBnClickedButtonStlReader();
 };
